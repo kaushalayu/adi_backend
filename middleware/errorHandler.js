@@ -1,4 +1,21 @@
 const errorHandler = (err, req, res, next) => {
+  if (err.name === 'MulterError') {
+    const messages = {
+      LIMIT_FILE_SIZE: 'File too large. Maximum size is 10MB.',
+      LIMIT_FILE_COUNT: 'Too many files uploaded.',
+      LIMIT_UNEXPECTED_FILE: 'Unexpected file field.',
+      LIMIT_FIELD_KEY: 'Field name too long.',
+      LIMIT_FIELD_VALUE: 'Field value too long.',
+      LIMIT_FIELD_COUNT: 'Too many fields.',
+      LIMIT_PART_COUNT: 'Too many parts.',
+      MISSING_FIELD_NAME: 'Field name missing.',
+    }
+    return res.status(400).json({
+      success: false,
+      message: messages[err.code] || 'Upload error',
+    })
+  }
+
   if (err.name === 'CastError') {
     return res.status(400).json({
       success: false,

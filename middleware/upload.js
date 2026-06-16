@@ -19,15 +19,15 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   const allowed = /jpeg|jpg|png|gif|webp|svg|ico/
   const extOk = allowed.test(path.extname(file.originalname).toLowerCase())
-  const mimeOk = allowed.test(file.mimetype.split('/')[1])
+  const mimeOk = file.mimetype.startsWith('image/')
   if (extOk && mimeOk) return cb(null, true)
-  cb(new Error('Only image files (jpg, png, gif, webp, svg, ico) are allowed'), false)
+  cb(null, false)
 }
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 10 * 1024 * 1024 },
 })
 
 module.exports = upload
