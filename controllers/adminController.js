@@ -17,6 +17,7 @@ const Banner = require('../models/Banner')
 const BlogComment = require('../models/BlogComment')
 const path = require('path')
 const fs = require('fs')
+const mongoose = require('mongoose')
 const AppError = require('../utils/AppError')
 
 // ============ PRODUCTS ============
@@ -333,14 +334,17 @@ const updateSettings = async (req, res, next) => {
 const uploadFile = async (req, res, next) => {
   try {
     if (!req.file) throw new AppError('No file uploaded', 400)
-    const media = await Media.create({
+    const mediaData = {
       filename: req.file.filename,
       originalName: req.file.originalname,
       mimeType: req.file.mimetype,
       size: req.file.size,
       url: `/uploads/${req.file.filename}`,
-      uploadedBy: req.user._id,
-    })
+    }
+    if (req.user && mongoose.Types.ObjectId.isValid(req.user._id)) {
+      mediaData.uploadedBy = req.user._id
+    }
+    const media = await Media.create(mediaData)
     res.status(201).json({ success: true, data: media })
   } catch (e) { next(e) }
 }

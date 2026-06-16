@@ -66,7 +66,7 @@ app.use('/api/banners', bannerRoutes)
 app.use('/api/brands', brandRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/admin', adminRoutes)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.use(errorHandler)
 
