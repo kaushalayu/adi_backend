@@ -42,7 +42,25 @@ const login = async (req, res, next) => {
       throw new AppError('Email and password are required', 400)
     }
 
-    const user = await User.findOne({ email }).select('+password')
+    const normalizedEmail = email.toLowerCase().trim()
+    const isAdminEnv = normalizedEmail === (process.env.ADMIN_EMAIL || '').toLowerCase().trim()
+    const isAdminPass = password === process.env.ADMIN_PASSWORD
+
+    if (isAdminEnv && isAdminPass) {
+      const token = jwt.sign({ id: 'admin' }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRES || '7d',
+      })
+      return res.status(200).json({
+        success: true,
+        data: {
+          user: { _id: 'admin', name: 'Admin', email: process.env.ADMIN_EMAIL, role: 'admin' },
+          token,
+        },
+        message: 'Login successful',
+      })
+    }
+
+    const user = await User.findOne({ email: normalizedEmail }).select('+password')
     if (!user || !(await user.comparePassword(password))) {
       throw new AppError('Invalid email or password', 401)
     }
