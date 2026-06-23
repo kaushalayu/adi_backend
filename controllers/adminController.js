@@ -42,7 +42,17 @@ const getAllProducts = async (req, res, next) => {
 }
 
 const createProduct = async (req, res, next) => {
-  try { const product = await Product.create(req.body); res.status(201).json({ success: true, data: product }) }
+  try {
+    const data = { ...req.body }
+    if (!data.slug && data.title) {
+      data.slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+    }
+    if (!data.category || data.category === '') {
+      throw new AppError('Category is required', 400)
+    }
+    const product = await Product.create(data)
+    res.status(201).json({ success: true, data: product })
+  }
   catch (e) { next(e) }
 }
 
