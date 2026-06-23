@@ -344,12 +344,22 @@ const updateSettings = async (req, res, next) => {
 const uploadFile = async (req, res, next) => {
   try {
     if (!req.file) throw new AppError('No file uploaded', 400)
+
+    // Read the file from disk and convert to base64 data URL
+    const filePath = req.file.path
+    const fileBuffer = fs.readFileSync(filePath)
+    const base64 = fileBuffer.toString('base64')
+    const dataUrl = `data:${req.file.mimetype};base64,${base64}`
+
+    // Remove temp file from disk
+    fs.unlinkSync(filePath)
+
     const mediaData = {
       filename: req.file.filename,
       originalName: req.file.originalname,
       mimeType: req.file.mimetype,
       size: req.file.size,
-      url: `/uploads/${req.file.filename}`,
+      url: dataUrl,
     }
     if (req.user && mongoose.Types.ObjectId.isValid(req.user._id)) {
       mediaData.uploadedBy = req.user._id
@@ -370,8 +380,6 @@ const deleteMedia = async (req, res, next) => {
   try {
     const media = await Media.findById(req.params.id)
     if (!media) throw new AppError('Media not found', 404)
-    const filePath = path.join(__dirname, '../../uploads', media.filename)
-    if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
     await Media.findByIdAndDelete(req.params.id)
     res.json({ success: true, message: 'File deleted' })
   } catch (e) { next(e) }
