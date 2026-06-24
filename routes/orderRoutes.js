@@ -15,7 +15,7 @@ router.post(
     body('billingAddress.firstName').trim().notEmpty().withMessage('First name is required'),
     body('billingAddress.lastName').trim().notEmpty().withMessage('Last name is required'),
     body('billingAddress.email').trim().isEmail().withMessage('Valid email required'),
-    body('billingAddress.phone').trim().notEmpty().withMessage('Phone is required'),
+    body('billingAddress.phone').trim().optional({ values: 'falsy' }),
   ],
   validate,
   createOrder
