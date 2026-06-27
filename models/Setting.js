@@ -25,6 +25,7 @@ const settingSchema = new mongoose.Schema({
   // Video banner URL (e.g., YouTube/Vimeo link or MP4)
   bannerVideoUrl: { type: String, default: '' },
   // Instagram posts (array of image+url)
+  instagramHandle: { type: String, default: '@wooden_furniture_lucknow' },
   instagramPosts: [{
     image: { type: String },
     url:   { type: String },

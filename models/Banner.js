@@ -13,6 +13,12 @@ const bannerSchema = new mongoose.Schema({
     maxlength: 500,
     default: '',
   },
+  description: {
+    type: String,
+    trim: true,
+    maxlength: 500,
+    default: '',
+  },
   image: {
     type: String,
     required: [true, 'Image URL is required'],
@@ -24,6 +30,11 @@ const bannerSchema = new mongoose.Schema({
   btnText: {
     type: String,
     default: 'Shop Now',
+  },
+  type: {
+    type: String,
+    enum: ['hero', 'promo_row_1', 'promo_row_2'],
+    default: 'hero',
   },
   order: {
     type: Number,
