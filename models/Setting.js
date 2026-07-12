@@ -30,6 +30,13 @@ const settingSchema = new mongoose.Schema({
     image: { type: String },
     url:   { type: String },
   }],
+  // WhatsApp API Config
+  whatsappProvider: { type: String, enum: ['meta', 'twilio'], default: 'meta' },
+  metaPhoneId:  { type: String, default: '' },
+  metaToken:    { type: String, default: '' },
+  twilioSid:    { type: String, default: '' },
+  twilioToken:  { type: String, default: '' },
+  twilioFrom:   { type: String, default: 'whatsapp:+14155238886' },
 }, { timestamps: true })
 
 module.exports = mongoose.model('Setting', settingSchema)
