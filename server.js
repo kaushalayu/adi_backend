@@ -25,6 +25,7 @@ const brandRoutes = require('./routes/brandRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const settingsRoutes = require('./routes/settingsRoutes')
 const whatsappRoutes = require('./routes/whatsappRoutes')
+const portfolioRoutes = require('./routes/portfolioRoutes')
 
 const app = express()
 const PORT = process.env.PORT || 5001
@@ -68,6 +69,7 @@ app.use('/api/brands', brandRoutes)
 app.use('/api/settings', settingsRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admin/whatsapp', whatsappRoutes)
+app.use('/api/portfolio', portfolioRoutes)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
 app.use(errorHandler)

@@ -427,7 +427,8 @@ async function getDashboardStats(req, res, next) {
     const Order = require('../models/Order')
     const User = require('../models/User')
     const Contact = require('../models/Contact')
-    const BlogComment = require('../models/BlogComment')
+const BlogComment = require('../models/BlogComment')
+const Portfolio = require('../models/Portfolio')
 
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -501,6 +502,7 @@ module.exports = {
   getTeam, createTeam, updateTeam, deleteTeam,
   getBanners, createBanner, updateBanner, deleteBanner,
   getBlogComments, approveBlogComment, deleteBlogComment,
+  getPortfolio, createPortfolio, updatePortfolio, deletePortfolio,
   getDashboardStats,
 }
 
@@ -555,5 +557,23 @@ async function updateBanner(req, res, next) {
 }
 async function deleteBanner(req, res, next) {
   try { const banner = await Banner.findByIdAndDelete(req.params.id); if (!banner) throw new AppError('Banner not found', 404); res.json({ success: true, message: 'Banner deleted' }) }
+  catch (e) { next(e) }
+}
+
+// ============ PORTFOLIO ============
+async function getPortfolio(req, res, next) {
+  try { const items = await Portfolio.find().sort({ order: 1, createdAt: -1 }); res.json({ success: true, data: items }) }
+  catch (e) { next(e) }
+}
+async function createPortfolio(req, res, next) {
+  try { const item = await Portfolio.create(req.body); res.status(201).json({ success: true, data: item }) }
+  catch (e) { next(e) }
+}
+async function updatePortfolio(req, res, next) {
+  try { const item = await Portfolio.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true }); if (!item) throw new AppError('Portfolio item not found', 404); res.json({ success: true, data: item }) }
+  catch (e) { next(e) }
+}
+async function deletePortfolio(req, res, next) {
+  try { const item = await Portfolio.findByIdAndDelete(req.params.id); if (!item) throw new AppError('Portfolio item not found', 404); res.json({ success: true, message: 'Portfolio item deleted' }) }
   catch (e) { next(e) }
 }

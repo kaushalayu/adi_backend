@@ -20,6 +20,7 @@ const {
   getTeam, createTeam, updateTeam, deleteTeam,
   getBanners, createBanner, updateBanner, deleteBanner,
   getBlogComments, approveBlogComment, deleteBlogComment,
+  getPortfolio, createPortfolio, updatePortfolio, deletePortfolio,
   getDashboardStats,
 } = require('../controllers/adminController')
 
@@ -116,6 +117,12 @@ router.delete('/banners/:id', deleteBanner)
 router.get('/blog-comments', getBlogComments)
 router.put('/blog-comments/:id/approve', approveBlogComment)
 router.delete('/blog-comments/:id', deleteBlogComment)
+
+// Portfolio
+router.get('/portfolio', getPortfolio)
+router.post('/portfolio', createPortfolio)
+router.put('/portfolio/:id', updatePortfolio)
+router.delete('/portfolio/:id', deletePortfolio)
 
 // Dashboard
 router.get('/dashboard/stats', getDashboardStats)
