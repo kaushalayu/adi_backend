@@ -1,6 +1,7 @@
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
+const AppError = require('../utils/AppError')
 
 const uploadDir = path.join(__dirname, '..', 'uploads')
 if (!fs.existsSync(uploadDir)) {
@@ -17,11 +18,12 @@ const storage = multer.diskStorage({
 })
 
 const fileFilter = (req, file, cb) => {
-  const allowed = /jpeg|jpg|png|gif|webp|svg|ico/
-  const extOk = allowed.test(path.extname(file.originalname).toLowerCase())
+  const allowed = /jpeg|jpg|png|gif|webp|svg|ico|bmp|tiff|avif/
+  const ext = path.extname(file.originalname).toLowerCase()
+  const extOk = allowed.test(ext)
   const mimeOk = file.mimetype.startsWith('image/')
   if (extOk && mimeOk) return cb(null, true)
-  cb(null, false)
+  cb(new AppError(`File type not allowed: "${file.originalname}". Allowed: jpg, png, gif, webp, svg, bmp, tiff, avif`, 400))
 }
 
 const upload = multer({

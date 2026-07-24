@@ -343,7 +343,7 @@ const updateSettings = async (req, res, next) => {
 // ============ MEDIA ============
 const uploadFile = async (req, res, next) => {
   try {
-    if (!req.file) throw new AppError('No file uploaded', 400)
+    if (!req.file) throw new AppError('No file uploaded. Check file type and size (max 10MB).', 400)
 
     // Read the file from disk and convert to base64 data URL
     const filePath = req.file.path
@@ -352,7 +352,7 @@ const uploadFile = async (req, res, next) => {
     const dataUrl = `data:${req.file.mimetype};base64,${base64}`
 
     // Remove temp file from disk
-    fs.unlinkSync(filePath)
+    try { fs.unlinkSync(filePath) } catch (_) {}
 
     // Use SEO-friendly name from frontend if provided, else fallback to original
     const customFilename = (req.body.customFilename || '').trim()
