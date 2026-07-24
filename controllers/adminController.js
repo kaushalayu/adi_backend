@@ -354,9 +354,13 @@ const uploadFile = async (req, res, next) => {
     // Remove temp file from disk
     fs.unlinkSync(filePath)
 
+    // Use SEO-friendly name from frontend if provided, else fallback to original
+    const customFilename = (req.body.customFilename || '').trim()
+    const savedName = customFilename || req.file.originalname
+
     const mediaData = {
       filename: req.file.filename,
-      originalName: req.file.originalname,
+      originalName: savedName,
       mimeType: req.file.mimetype,
       size: req.file.size,
       url: dataUrl,
@@ -368,6 +372,7 @@ const uploadFile = async (req, res, next) => {
     res.status(201).json({ success: true, data: media })
   } catch (e) { next(e) }
 }
+
 
 const getMedia = async (req, res, next) => {
   try {
