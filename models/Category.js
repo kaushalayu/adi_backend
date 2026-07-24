@@ -23,6 +23,11 @@ const categorySchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  imageAlt: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   parent: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Category',

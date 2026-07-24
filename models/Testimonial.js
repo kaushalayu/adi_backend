@@ -28,6 +28,11 @@ const testimonialSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  imageAlt: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   isActive: {
     type: Boolean,
     default: true,

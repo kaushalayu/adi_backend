@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const settingSchema = new mongoose.Schema({
   siteName: { type: String, default: 'The Furniture Boutique' },
   siteLogo: { type: String, default: '' },
+  siteLogoAlt: { type: String, default: '' },
   favicon: { type: String, default: '' },
   address: { type: String, default: '' },
   email: { type: String, default: '' },
@@ -22,13 +23,15 @@ const settingSchema = new mongoose.Schema({
   dealTitle: { type: String, default: 'Teakwood Dining Showcase' },
   dealDesc: { type: String, default: 'Premium Teakwood Dining set — high durability, hand-varnished polish, custom upholstery options.' },
   dealImage: { type: String, default: '' },
+  dealImageAlt: { type: String, default: '' },
   // Video banner URL (e.g., YouTube/Vimeo link or MP4)
   bannerVideoUrl: { type: String, default: '' },
   // Instagram posts (array of image+url)
   instagramHandle: { type: String, default: '@wooden_furniture_lucknow' },
   instagramPosts: [{
-    image: { type: String },
-    url:   { type: String },
+    image:    { type: String },
+    imageAlt: { type: String, default: '' },
+    url:      { type: String },
   }],
   // WhatsApp API Config
   whatsappProvider: { type: String, enum: ['meta', 'twilio'], default: 'meta' },

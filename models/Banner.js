@@ -23,6 +23,11 @@ const bannerSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Image URL is required'],
   },
+  imageAlt: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   link: {
     type: String,
     default: '',

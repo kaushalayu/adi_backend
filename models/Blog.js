@@ -27,6 +27,11 @@ const blogSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  featuredImageAlt: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   author: {
     type: String,
     default: 'Admin',
@@ -67,6 +72,11 @@ const blogSchema = new mongoose.Schema({
   ogImage: {
     type: String,
     default: '',
+  },
+  ogImageAlt: {
+    type: String,
+    default: '',
+    trim: true,
   },
   ogTitle: {
     type: String,

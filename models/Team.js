@@ -17,6 +17,11 @@ const teamSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
+  imageAlt: {
+    type: String,
+    default: '',
+    trim: true,
+  },
   socialLinks: {
     facebook: { type: String, default: '' },
     twitter: { type: String, default: '' },

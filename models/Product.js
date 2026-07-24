@@ -90,6 +90,29 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  // SEO fields
+  metaTitle: {
+    type: String,
+    trim: true,
+    maxlength: 70,
+    default: '',
+  },
+  metaDescription: {
+    type: String,
+    trim: true,
+    maxlength: 160,
+    default: '',
+  },
+  metaKeywords: {
+    type: String,
+    trim: true,
+    default: '',
+  },
+  canonicalUrl: {
+    type: String,
+    trim: true,
+    default: '',
+  },
 }, {
   timestamps: true,
 })
