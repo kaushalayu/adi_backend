@@ -15,6 +15,7 @@ const Testimonial = require('../models/Testimonial')
 const Team = require('../models/Team')
 const Banner = require('../models/Banner')
 const BlogComment = require('../models/BlogComment')
+const Portfolio = require('../models/Portfolio')
 const path = require('path')
 const fs = require('fs')
 const mongoose = require('mongoose')
@@ -390,11 +391,6 @@ const deleteMedia = async (req, res, next) => {
   } catch (e) { next(e) }
 }
 
-async function deleteBanner(req, res, next) {
-  try { const banner = await Banner.findByIdAndDelete(req.params.id); if (!banner) throw new AppError('Banner not found', 404); res.json({ success: true, message: 'Banner deleted' }) }
-  catch (e) { next(e) }
-}
-
 // ============ BLOG COMMENTS ============
 async function getBlogComments(req, res, next) {
   try {
@@ -428,12 +424,6 @@ async function deleteBlogComment(req, res, next) {
 // ============ DASHBOARD STATS ============
 async function getDashboardStats(req, res, next) {
   try {
-    const Product = require('../models/Product')
-    const Order = require('../models/Order')
-    const User = require('../models/User')
-    const Contact = require('../models/Contact')
-const BlogComment = require('../models/BlogComment')
-const Portfolio = require('../models/Portfolio')
 
     const now = new Date()
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
