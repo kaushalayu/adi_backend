@@ -6,7 +6,7 @@ const {
   getAllProducts, createProduct, updateProduct, deleteProduct,
   createCategory, updateCategory, deleteCategory,
   getBrands, createBrand, updateBrand, deleteBrand,
-  getAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost,
+  getAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById,
   getAllFAQs, createFAQ, updateFAQ, deleteFAQ,
   getContacts, updateContact,
   getNewsletterSubscribers, deleteNewsletterSubscriber,
@@ -48,6 +48,7 @@ router.delete('/brands/:id', deleteBrand)
 
 // Blog
 router.get('/blog', getAllBlogPosts)
+router.get('/blog/:id', getBlogPostById)
 router.post('/blog', createBlogPost)
 router.put('/blog/:id', updateBlogPost)
 router.delete('/blog/:id', deleteBlogPost)

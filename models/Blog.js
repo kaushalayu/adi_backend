@@ -32,6 +32,24 @@ const blogSchema = new mongoose.Schema({
     default: '',
     trim: true,
   },
+  featuredImageTitle: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: 200,
+  },
+  featuredImageCaption: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: 500,
+  },
+  featuredImageDescription: {
+    type: String,
+    default: '',
+    trim: true,
+    maxlength: 1000,
+  },
   author: {
     type: String,
     default: 'Admin',

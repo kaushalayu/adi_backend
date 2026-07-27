@@ -479,28 +479,6 @@ async function getDashboardStats(req, res, next) {
   } catch (e) { next(e) }
 }
 
-module.exports = {
-  getAllProducts, createProduct, updateProduct, deleteProduct,
-  createCategory, updateCategory, deleteCategory,
-  getBrands, createBrand, updateBrand, deleteBrand,
-  getAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost,
-  getAllFAQs, createFAQ, updateFAQ, deleteFAQ,
-  getContacts, updateContact,
-  getNewsletterSubscribers, deleteNewsletterSubscriber,
-  getCoupons, createCoupon, updateCoupon, deleteCoupon,
-  getUsers, createAdminUser, updateUser,
-  getAllOrders, updateOrderStatus,
-  getReviews, approveReview, deleteReview,
-  getSettings, updateSettings,
-  uploadFile, getMedia, deleteMedia,
-  getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
-  getTeam, createTeam, updateTeam, deleteTeam,
-  getBanners, createBanner, updateBanner, deleteBanner,
-  getBlogComments, approveBlogComment, deleteBlogComment,
-  getPortfolio, createPortfolio, updatePortfolio, deletePortfolio,
-  getDashboardStats,
-}
-
 // ============ TESTIMONIALS ============
 async function getTestimonials(req, res, next) {
   try { const testimonials = await Testimonial.find().sort({ order: 1, createdAt: -1 }); res.json({ success: true, data: testimonials }) }
@@ -571,4 +549,35 @@ async function updatePortfolio(req, res, next) {
 async function deletePortfolio(req, res, next) {
   try { const item = await Portfolio.findByIdAndDelete(req.params.id); if (!item) throw new AppError('Portfolio item not found', 404); res.json({ success: true, message: 'Portfolio item deleted' }) }
   catch (e) { next(e) }
+}
+
+// ============ SINGLE BLOG POST BY ID (for edit form) ============
+const getBlogPostById = async (req, res, next) => {
+  try {
+    const post = await Blog.findById(req.params.id)
+    if (!post) throw new AppError('Blog post not found', 404)
+    res.json({ success: true, data: post })
+  } catch (e) { next(e) }
+}
+
+module.exports = {
+  getAllProducts, createProduct, updateProduct, deleteProduct,
+  createCategory, updateCategory, deleteCategory,
+  getBrands, createBrand, updateBrand, deleteBrand,
+  getAllBlogPosts, createBlogPost, updateBlogPost, deleteBlogPost, getBlogPostById,
+  getAllFAQs, createFAQ, updateFAQ, deleteFAQ,
+  getContacts, updateContact,
+  getNewsletterSubscribers, deleteNewsletterSubscriber,
+  getCoupons, createCoupon, updateCoupon, deleteCoupon,
+  getUsers, createAdminUser, updateUser,
+  getAllOrders, updateOrderStatus,
+  getReviews, approveReview, deleteReview,
+  getSettings, updateSettings,
+  uploadFile, getMedia, deleteMedia,
+  getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial,
+  getTeam, createTeam, updateTeam, deleteTeam,
+  getBanners, createBanner, updateBanner, deleteBanner,
+  getBlogComments, approveBlogComment, deleteBlogComment,
+  getPortfolio, createPortfolio, updatePortfolio, deletePortfolio,
+  getDashboardStats,
 }
