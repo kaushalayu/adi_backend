@@ -7,9 +7,10 @@ const router = express.Router()
 // Get public settings (no auth required)
 router.get('/', async (req, res, next) => {
   try {
-    let settings = await Setting.findOne()
+    let settings = await Setting.findOne().lean()
     if (!settings) settings = await Setting.create({})
-    res.json({ success: true, data: settings })
+    const { metaToken, metaPhoneId, twilioSid, twilioToken, twilioFrom, whatsappProvider, ...publicSettings } = settings
+    res.json({ success: true, data: publicSettings })
   } catch (e) { next(e) }
 })
 

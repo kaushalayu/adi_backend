@@ -4,7 +4,7 @@ const AppError = require('../utils/AppError')
 
 const createOrder = async (req, res, next) => {
   try {
-    const { items, billingAddress, shippingAddress, notes, coupon } = req.body
+    const { items, billingAddress, shippingAddress, notes, couponCode } = req.body
 
     if (!items || !items.length) {
       throw new AppError('Order must contain at least one item', 400)
@@ -17,6 +17,9 @@ const createOrder = async (req, res, next) => {
       items.map(async (item) => {
         const product = await Product.findById(item.product).lean()
         if (!product) throw new AppError(`Product ${item.product} not found`, 404)
+        if (product.stockQuantity !== undefined && product.stockQuantity < item.quantity) {
+          throw new AppError(`${product.title} is out of stock or has insufficient quantity`, 400)
+        }
         return {
           product: item.product,
           title: product.title,
@@ -28,8 +31,29 @@ const createOrder = async (req, res, next) => {
     )
 
     const subtotal = enrichedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
+    let discount = 0
+    let couponName = ''
+    if (couponCode) {
+      try {
+        const Coupon = require('../models/Coupon')
+        const couponDoc = await Coupon.findOne({ code: couponCode.toUpperCase(), isActive: true })
+        if (couponDoc) {
+          if (!couponDoc.usageLimit || couponDoc.usedCount < couponDoc.usageLimit) {
+            if (!couponDoc.minAmount || subtotal >= couponDoc.minAmount) {
+              discount = couponDoc.type === 'percentage'
+                ? Math.round(subtotal * (couponDoc.value / 100))
+                : couponDoc.value
+              couponName = couponDoc.code
+              couponDoc.usedCount = (couponDoc.usedCount || 0) + 1
+              await couponDoc.save()
+            }
+          }
+        }
+      } catch {}
+    }
+
     const shipping = subtotal > 500 ? 0 : 50
-    const discount = 0
     const total = subtotal + shipping - discount
 
     const orderData = {
@@ -54,7 +78,7 @@ const createOrder = async (req, res, next) => {
       paymentMethod: 'cod',
       paymentStatus: 'pending',
       notes: notes || '',
-      coupon: coupon || '',
+      coupon: couponName,
     }
 
     const order = await Order.create(orderData)

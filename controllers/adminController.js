@@ -21,6 +21,8 @@ const fs = require('fs')
 const mongoose = require('mongoose')
 const AppError = require('../utils/AppError')
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 // ============ PRODUCTS ============
 const getAllProducts = async (req, res, next) => {
   try {
@@ -29,9 +31,10 @@ const getAllProducts = async (req, res, next) => {
     const limitNum = Math.min(50, Math.max(1, parseInt(limit)))
     const filter = {}
     if (search) {
+      const safeSearch = escapeRegex(search)
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { sku: { $regex: search, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { sku: { $regex: safeSearch, $options: 'i' } },
       ]
     }
     const [products, total] = await Promise.all([
@@ -260,7 +263,11 @@ const createAdminUser = async (req, res, next) => {
 
 const updateUser = async (req, res, next) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+    const { name, email, phone, role, addresses, password } = req.body
+    const update = { name, email, phone, role, addresses }
+    if (password) update.password = password
+    Object.keys(update).forEach(k => update[k] === undefined && delete update[k])
+    const user = await User.findByIdAndUpdate(req.params.id, update, { new: true, runValidators: true })
     if (!user) throw new AppError('User not found', 404)
     res.json({ success: true, data: user, message: 'User updated' })
   } catch (e) { next(e) }
@@ -272,9 +279,10 @@ const getAllOrders = async (req, res, next) => {
     const { search } = req.query
     const filter = {}
     if (search) {
+      const safeSearch = escapeRegex(search)
       filter.$or = [
-        { orderNumber: { $regex: search, $options: 'i' } },
-        { 'billingAddress.email': { $regex: search, $options: 'i' } },
+        { orderNumber: { $regex: safeSearch, $options: 'i' } },
+        { 'billingAddress.email': { $regex: safeSearch, $options: 'i' } },
       ]
     }
     const orders = await Order.find(filter)
@@ -284,9 +292,18 @@ const getAllOrders = async (req, res, next) => {
   } catch (e) { next(e) }
 }
 
+const getOrderById = async (req, res, next) => {
+  try {
+    const order = await Order.findById(req.params.id).populate('user', 'name email')
+    if (!order) throw new AppError('Order not found', 404)
+    res.json({ success: true, data: order })
+  } catch (e) { next(e) }
+}
+
 const updateOrderStatus = async (req, res, next) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+    const { orderStatus, paymentStatus } = req.body
+    const order = await Order.findByIdAndUpdate(req.params.id, { orderStatus, paymentStatus }, { new: true, runValidators: true })
     if (!order) throw new AppError('Order not found', 404)
     res.json({ success: true, data: order })
   } catch (e) { next(e) }
@@ -570,7 +587,7 @@ module.exports = {
   getNewsletterSubscribers, deleteNewsletterSubscriber,
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
   getUsers, createAdminUser, updateUser,
-  getAllOrders, updateOrderStatus,
+  getAllOrders, getOrderById, updateOrderStatus,
   getReviews, approveReview, deleteReview,
   getSettings, updateSettings,
   uploadFile, getMedia, deleteMedia,

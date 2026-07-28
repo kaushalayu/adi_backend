@@ -1,6 +1,8 @@
 const Blog = require('../models/Blog')
 const AppError = require('../utils/AppError')
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 const getPosts = async (req, res, next) => {
   try {
     const { page = 1, limit = 6, category, tag, search } = req.query
@@ -9,10 +11,11 @@ const getPosts = async (req, res, next) => {
     if (category) filter.category = category
     if (tag) filter.tags = tag
     if (search) {
+      const safeSearch = escapeRegex(search)
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
-        { content: { $regex: search, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { excerpt: { $regex: safeSearch, $options: 'i' } },
+        { content: { $regex: safeSearch, $options: 'i' } },
       ]
     }
 

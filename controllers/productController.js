@@ -2,6 +2,8 @@ const Product = require('../models/Product')
 const Category = require('../models/Category')
 const AppError = require('../utils/AppError')
 
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 const getProducts = async (req, res, next) => {
   try {
     const {
@@ -31,7 +33,7 @@ const getProducts = async (req, res, next) => {
     }
     if (brand) filter.brand = brand
     if (featured === 'true') filter.featured = true
-    if (color) filter['colors.name'] = { $regex: color, $options: 'i' }
+    if (color) filter['colors.name'] = { $regex: escapeRegex(color), $options: 'i' }
 
     if (minPrice || maxPrice) {
       filter.price = {}
@@ -40,10 +42,11 @@ const getProducts = async (req, res, next) => {
     }
 
     if (search) {
+      const safeSearch = escapeRegex(search)
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { tags: { $regex: search, $options: 'i' } },
+        { title: { $regex: safeSearch, $options: 'i' } },
+        { description: { $regex: safeSearch, $options: 'i' } },
+        { tags: { $regex: safeSearch, $options: 'i' } },
       ]
     }
 

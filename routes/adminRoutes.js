@@ -12,7 +12,7 @@ const {
   getNewsletterSubscribers, deleteNewsletterSubscriber,
   getCoupons, createCoupon, updateCoupon, deleteCoupon,
   getUsers, createAdminUser, updateUser,
-  getAllOrders, updateOrderStatus,
+  getAllOrders, getOrderById, updateOrderStatus,
   getReviews, approveReview, deleteReview,
   getSettings, updateSettings,
   uploadFile, getMedia, deleteMedia,
@@ -80,6 +80,7 @@ router.put('/users/:id', updateUser)
 
 // Orders
 router.get('/orders', getAllOrders)
+router.get('/orders/:id', getOrderById)
 router.put('/orders/:id', updateOrderStatus)
 
 // Reviews

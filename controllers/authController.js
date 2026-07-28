@@ -1,6 +1,15 @@
 const User = require('../models/User')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
 const AppError = require('../utils/AppError')
+
+const safeCompare = (a, b) => {
+  if (!a || !b) return false
+  const bufA = Buffer.from(a)
+  const bufB = Buffer.from(b)
+  if (bufA.length !== bufB.length) return false
+  return crypto.timingSafeEqual(bufA, bufB)
+}
 
 const signToken = (userId) => {
   return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -44,7 +53,7 @@ const login = async (req, res, next) => {
 
     const normalizedEmail = email.toLowerCase().trim()
     const isAdminEnv = normalizedEmail === (process.env.ADMIN_EMAIL || '').toLowerCase().trim()
-    const isAdminPass = password === process.env.ADMIN_PASSWORD
+    const isAdminPass = safeCompare(password, process.env.ADMIN_PASSWORD)
 
     if (isAdminEnv && isAdminPass) {
       const token = jwt.sign({ id: 'admin' }, process.env.JWT_SECRET, {
