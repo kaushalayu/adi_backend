@@ -5,8 +5,8 @@ const router = express.Router({ mergeParams: true })
 
 router.get('/', async (req, res, next) => {
   try {
-    const blog = await Blog.findOne({ slug: req.params.slug })
-    if (!blog) return res.status(404).json({ success: false, message: 'Blog post not found' })
+    const blog = await Blog.findOne({ slug: req.params.slug, published: true })
+    if (!blog) return res.json({ success: true, data: { comments: [], replies: [] } })
     const comments = await BlogComment.find({ post: blog._id, isApproved: true, parentComment: null })
       .sort({ createdAt: -1 })
     const replies = await BlogComment.find({ post: blog._id, isApproved: true, parentComment: { $ne: null } })
@@ -17,7 +17,7 @@ router.get('/', async (req, res, next) => {
 
 router.post('/', async (req, res, next) => {
   try {
-    const blog = await Blog.findOne({ slug: req.params.slug })
+    const blog = await Blog.findOne({ slug: req.params.slug, published: true })
     if (!blog) return res.status(404).json({ success: false, message: 'Blog post not found' })
     const comment = await BlogComment.create({ ...req.body, post: blog._id })
     res.status(201).json({ success: true, data: comment, message: 'Comment submitted for approval' })
