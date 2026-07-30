@@ -81,7 +81,7 @@ const blogSchema = new mongoose.Schema({
   metaKeywords: {
     type: String,
     trim: true,
-    maxlength: 255,
+    default: '',
   },
   canonicalUrl: {
     type: String,
