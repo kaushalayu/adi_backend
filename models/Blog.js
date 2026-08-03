@@ -5,7 +5,6 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Post title is required'],
     trim: true,
-    maxlength: 200,
   },
   slug: {
     type: String,
@@ -21,7 +20,6 @@ const blogSchema = new mongoose.Schema({
   excerpt: {
     type: String,
     trim: true,
-    maxlength: 500,
   },
   featuredImage: {
     type: String,
@@ -36,19 +34,16 @@ const blogSchema = new mongoose.Schema({
     type: String,
     default: '',
     trim: true,
-    maxlength: 200,
   },
   featuredImageCaption: {
     type: String,
     default: '',
     trim: true,
-    maxlength: 500,
   },
   featuredImageDescription: {
     type: String,
     default: '',
     trim: true,
-    maxlength: 1000,
   },
   author: {
     type: String,
@@ -71,12 +66,10 @@ const blogSchema = new mongoose.Schema({
   metaTitle: {
     type: String,
     trim: true,
-    maxlength: 70,
   },
   metaDescription: {
     type: String,
     trim: true,
-    maxlength: 160,
   },
   metaKeywords: {
     type: String,
@@ -99,12 +92,10 @@ const blogSchema = new mongoose.Schema({
   ogTitle: {
     type: String,
     trim: true,
-    maxlength: 70,
   },
   ogDescription: {
     type: String,
     trim: true,
-    maxlength: 200,
   },
   schemaMarkup: {
     type: String,
