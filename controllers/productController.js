@@ -10,6 +10,7 @@ const getProducts = async (req, res, next) => {
       page = 1,
       limit = 12,
       category,
+      subcategory,
       brand,
       search,
       minPrice,
@@ -28,6 +29,17 @@ const getProducts = async (req, res, next) => {
       } else {
         const cat = await Category.findOne({ slug: category }).select('_id').lean()
         if (cat) filter.category = cat._id
+        else return res.status(200).json({ success: true, data: [], pagination: { page: 1, limit: 12, total: 0, pages: 0 } })
+      }
+    }
+
+    if (subcategory) {
+      const isSubObjectId = /^[0-9a-fA-F]{24}$/.test(subcategory)
+      if (isSubObjectId) {
+        filter.subcategory = subcategory
+      } else {
+        const sub = await Category.findOne({ slug: subcategory }).select('_id').lean()
+        if (sub) filter.subcategory = sub._id
         else return res.status(200).json({ success: true, data: [], pagination: { page: 1, limit: 12, total: 0, pages: 0 } })
       }
     }
@@ -66,7 +78,7 @@ const getProducts = async (req, res, next) => {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate('category', 'name slug')
+        .populate('category', 'name slug').populate('subcategory', 'name slug')
         .sort(sortOption)
         .skip(skip)
         .limit(limitNum)
@@ -93,7 +105,7 @@ const getProduct = async (req, res, next) => {
   try {
     const isMongoId = req.params.slug.match(/^[0-9a-fA-F]{24}$/)
     const query = isMongoId ? { _id: req.params.slug, isActive: true } : { slug: req.params.slug, isActive: true }
-    const product = await Product.findOne(query).populate('category', 'name slug')
+    const product = await Product.findOne(query).populate('category', 'name slug').populate('subcategory', 'name slug')
 
     if (!product) {
       throw new AppError('Product not found', 404)
@@ -120,7 +132,7 @@ const getRelatedProducts = async (req, res, next) => {
       _id: { $ne: product._id },
       isActive: true,
     })
-      .populate('category', 'name slug')
+      .populate('category', 'name slug').populate('subcategory', 'name slug')
       .limit(4)
       .lean()
 
