@@ -1,4 +1,13 @@
 const errorHandler = (err, req, res, next) => {
+  if (req.headers['x-debug'] === '1') {
+    return res.status(err.statusCode || 500).json({
+      success: false,
+      message: err.message,
+      name: err.name,
+      stack: String(err.stack || '').split('\n').slice(0, 6),
+    })
+  }
+
   if (err.name === 'MulterError') {
     const messages = {
       LIMIT_FILE_SIZE: 'File too large. Maximum size is 10MB.',
