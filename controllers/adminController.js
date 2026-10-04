@@ -23,9 +23,9 @@ const AppError = require('../utils/AppError')
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// Inline base64 images (data URIs) can be several MB each. They must be dropped
-// in the aggregation pipeline itself, otherwise Mongo still ships every blob into
-// memory and listing blows up (OOM / 500) before the response is ever built.
+// Blog docs can carry multi-MB inline base64 images. The shared Atlas free tier
+// only gives the sort stage a 32MB buffer, so the heavy fields must be projected
+// away BEFORE sorting — otherwise "Sort exceeded memory limit of 33554432 bytes".
 const MAX_INLINE_IMAGE = 4096
 const asString = { $convert: { input: '$featuredImage', to: 'string', onError: '', onNull: '' } }
 
@@ -139,9 +139,6 @@ const getAllBlogPosts = async (req, res, next) => {
     const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 10))
     const [posts, total] = await Promise.all([
       Blog.aggregate([
-        { $sort: { createdAt: -1 } },
-        { $skip: (pageNum - 1) * limitNum },
-        { $limit: limitNum },
         { $project: { content: 0, schemaMarkup: 0, ogImage: 0, ogImageAlt: 0 } },
         {
           $addFields: {
@@ -150,7 +147,10 @@ const getAllBlogPosts = async (req, res, next) => {
             },
           },
         },
-      ]),
+        { $sort: { createdAt: -1 } },
+        { $skip: (pageNum - 1) * limitNum },
+        { $limit: limitNum },
+      ], { allowDiskUse: true }),
       Blog.countDocuments(),
     ])
     res.json({ success: true, data: posts, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
