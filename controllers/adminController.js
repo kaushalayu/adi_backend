@@ -129,10 +129,15 @@ const deleteBrand = async (req, res, next) => {
 const getAllBlogPosts = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query
-    const pageNum = Math.max(1, parseInt(page))
-    const limitNum = Math.min(50, Math.max(1, parseInt(limit)))
+    const pageNum = Math.max(1, parseInt(page) || 1)
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 10))
     const [posts, total] = await Promise.all([
-      Blog.find().sort({ createdAt: -1 }).skip((pageNum - 1) * limitNum).limit(limitNum).lean(),
+      Blog.find()
+        .select('-content -schemaMarkup')
+        .sort({ createdAt: -1 })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        .lean(),
       Blog.countDocuments(),
     ])
     res.json({ success: true, data: posts, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
