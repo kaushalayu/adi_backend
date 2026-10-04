@@ -23,6 +23,12 @@ const AppError = require('../utils/AppError')
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+// Inline base64 images (data URIs) can be several MB each and blow up list
+// responses, so they are dropped from list payloads. Admin re-uploads them as files.
+const MAX_INLINE_IMAGE = 4096
+const stripInlineImage = (v) =>
+  typeof v === 'string' && v.startsWith('data:') && v.length > MAX_INLINE_IMAGE ? '' : v
+
 // ============ PRODUCTS ============
 const getAllProducts = async (req, res, next) => {
   try {
@@ -133,14 +139,15 @@ const getAllBlogPosts = async (req, res, next) => {
     const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 10))
     const [posts, total] = await Promise.all([
       Blog.find()
-        .select('-content -schemaMarkup')
+        .select('-content -schemaMarkup -ogImage -ogImageAlt')
         .sort({ createdAt: -1 })
         .skip((pageNum - 1) * limitNum)
         .limit(limitNum)
         .lean(),
       Blog.countDocuments(),
     ])
-    res.json({ success: true, data: posts, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
+    const data = posts.map(p => ({ ...p, featuredImage: stripInlineImage(p.featuredImage) }))
+    res.json({ success: true, data, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
   } catch (e) { next(e) }
 }
 const createBlogPost = async (req, res, next) => {
