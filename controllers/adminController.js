@@ -23,11 +23,11 @@ const AppError = require('../utils/AppError')
 
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-// Inline base64 images (data URIs) can be several MB each and blow up list
-// responses, so they are dropped from list payloads. Admin re-uploads them as files.
+// Inline base64 images (data URIs) can be several MB each. They must be dropped
+// in the aggregation pipeline itself, otherwise Mongo still ships every blob into
+// memory and listing blows up (OOM / 500) before the response is ever built.
 const MAX_INLINE_IMAGE = 4096
-const stripInlineImage = (v) =>
-  typeof v === 'string' && v.startsWith('data:') && v.length > MAX_INLINE_IMAGE ? '' : v
+const asString = { $convert: { input: '$featuredImage', to: 'string', onError: '', onNull: '' } }
 
 // ============ PRODUCTS ============
 const getAllProducts = async (req, res, next) => {
@@ -138,16 +138,22 @@ const getAllBlogPosts = async (req, res, next) => {
     const pageNum = Math.max(1, parseInt(page) || 1)
     const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 10))
     const [posts, total] = await Promise.all([
-      Blog.find()
-        .select('-content -schemaMarkup -ogImage -ogImageAlt')
-        .sort({ createdAt: -1 })
-        .skip((pageNum - 1) * limitNum)
-        .limit(limitNum)
-        .lean(),
+      Blog.aggregate([
+        { $sort: { createdAt: -1 } },
+        { $skip: (pageNum - 1) * limitNum },
+        { $limit: limitNum },
+        { $project: { content: 0, schemaMarkup: 0, ogImage: 0, ogImageAlt: 0 } },
+        {
+          $addFields: {
+            featuredImage: {
+              $cond: [{ $gt: [{ $strLenCP: asString }, MAX_INLINE_IMAGE] }, '', asString],
+            },
+          },
+        },
+      ]),
       Blog.countDocuments(),
     ])
-    const data = posts.map(p => ({ ...p, featuredImage: stripInlineImage(p.featuredImage) }))
-    res.json({ success: true, data, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
+    res.json({ success: true, data: posts, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } })
   } catch (e) { next(e) }
 }
 const createBlogPost = async (req, res, next) => {
